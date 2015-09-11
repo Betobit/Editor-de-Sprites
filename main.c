@@ -20,10 +20,10 @@ typedef struct {
 
 typedef struct
 {
-    int n;
-    int m;
-    int **matriz; //x,y del elemento
-}TMatriz;
+    int x;
+    int y;
+    int color;
+}TCuadro;
 
 // AREA DE COLORES
 void ColoresPrincipales(int xInicial, int yInicial);
@@ -31,47 +31,106 @@ void ColoresDinamicos(int xInicial, int yInicial, int *color);
 void CreaUI();
 
 // UI
+int asignaMemoria(TCuadro ***mat, int n, int m);
 void CreaMenu(TBoton *b);
-int CreaMatriz(TMatriz *m, int x, int y);
+int CreaMatriz(TCuadro **mat, int n, int m, int x, int y); // Devuelve el tam del cuadrito
 
 int main()
 {
-    TMatriz matriz = {15, 15, NULL};
-    CreaUI();
+    TCuadro **matriz;
+    int n=20, m=20, tam, i, j;
+    /*printf("\nIngresa n: ");
+    scanf("%d", &n);
+    printf("\nIngresa m: ");
+    scanf("%d", &m);*/
 
-    char opcion = -1;
-    int colorSel;
-    int tam = CreaMatriz(&matriz, 40, HEIGHT/10-CIRCULO_TAM);
-
-    do
+    if(asignaMemoria(&matriz, n, m))
     {
-        while(!ismouseclick(WM_LBUTTONDOWN));
-        int xm, ym;
-        getmouseclick(WM_LBUTTONDOWN, xm, ym);
-
-        // Zona de colores
-        if( xm > WIDTH-150 - CIRCULO_TAM && xm < WIDTH - 40 &&
-            ym > HEIGHT/10 - CIRCULO_TAM && ym < HEIGHT - 250)
+        CreaUI();
+        char opcion = -1;
+        int colorSel, colorOriginal;
+        tam = CreaMatriz(matriz, n, m, 40, HEIGHT/10-CIRCULO_TAM);
+        setfillstyle(1, WHITE);
+        colorOriginal = COLOR(254, 254, 254);
+        do
         {
-            colorSel = getpixel(xm, ym);
-            if(colorSel != 55590444)
+            while(!ismouseclick(WM_LBUTTONDOWN));
+            int xm, ym;
+            getmouseclick(WM_LBUTTONDOWN, xm, ym);
+
+            // Zona de colores
+            if( xm > WIDTH-150 - CIRCULO_TAM && xm < WIDTH - 40 &&
+                ym > HEIGHT/10 - CIRCULO_TAM && ym < HEIGHT - 250)
             {
-                setcolor(colorSel);
-                setlinestyle(0, 1, 4);
-                rectangle(40, HEIGHT/10-CIRCULO_TAM, tam*matriz.n+40, HEIGHT/10-CIRCULO_TAM+tam*matriz.m);
-                ColoresDinamicos(WIDTH-50, HEIGHT/10, &colorSel);
+                colorSel = colorOriginal = getpixel(xm, ym);
+                if(colorSel != 55590444)
+                {
+                    setcolor(colorSel);
+                    setlinestyle(0, 1, 4);
+                    rectangle(39, HEIGHT/10-CIRCULO_TAM-1, tam*n+41, HEIGHT/10-CIRCULO_TAM+tam*m+1);
+                    ColoresDinamicos(WIDTH-50, HEIGHT/10, &colorSel);
+                    setfillstyle(1, colorOriginal);
+                }
+            } else if (xm > 40 && xm <tam*n+40 && ym > HEIGHT/10-CIRCULO_TAM && ym < HEIGHT/10-CIRCULO_TAM+tam*m ) {
+                setcolor(colorOriginal);
+                // Falta optimizar un monton, pero deadline is coming.... :I
+                setlinestyle(0, 1, 1);
+                int x, y, puntos[8];
+                for(i=0; i<m; i++)
+                    for(j=0; j<n; j++)
+                    {
+                        x = (*(matriz+i)+j)->x;
+                        y = (*(matriz+i)+j)->y;
+                        if( xm>x && xm<x+tam && ym>y && ym<y+tam)
+                        {
+                            puntos[0] = (*(matriz+i)+j)->x;
+                            puntos[1] = (*(matriz+i)+j)->y;
+                            puntos[2] = (*(matriz+i)+j)->x+tam;
+                            puntos[3] = (*(matriz+i)+j)->y;
+                            puntos[4] = (*(matriz+i)+j)->x+tam;
+                            puntos[5] = (*(matriz+i)+j)->y+tam;
+                            puntos[6] = (*(matriz+i)+j)->x;
+                            puntos[7] = (*(matriz+i)+j)->y+tam;
+                            i = m;
+                            j = n;
+                            (*(matriz+i)+j)->color = colorSel;
+                        }
+                    }
+
+                fillpoly(4, puntos);
             }
-        } else if (xm > 40 && xm <tam*matriz.n+40 && ym > HEIGHT/10-CIRCULO_TAM && ym < HEIGHT/10-CIRCULO_TAM+tam*matriz.m   ) {
-            setcolor(colorSel);
-            bar(xm, ym,xm+40, ym+40);
-        }
-        // Zona de colores
-    } while (opcion == -1);
-    printf("fin");
+            // Zona de colores
+        } while (opcion == -1);
+    } else
+        printf("\nSin memoria");
+
     getch();
     return (0);
 }
 
+int asignaMemoria(TCuadro ***mat, int n, int m)
+{
+    int res = 1,i;
+
+    *mat = (TCuadro**)malloc(sizeof(TCuadro*)*n);
+
+    if(*mat)
+    {
+        for(i=0; i<n && res==1; i++)
+        {
+            *(*mat + i) = (TCuadro*) malloc(sizeof(TCuadro)*m);
+            if(*(*mat+i) == NULL)
+            {
+                res = 0;
+                while(--i>0)
+                    free(*(*mat+i));
+                free(*mat);
+            }
+        }
+    }
+
+    return res;
+}
 /******************************************
                 COLORES
 ******************************************/
@@ -154,20 +213,22 @@ void CreaUI()
     CreaMenu(botones);
 }
 
-int CreaMatriz(TMatriz *m, int x, int y)
+int CreaMatriz(TCuadro **mat, int n, int m, int x, int y)
 {
     int i, j,
-        tam = 470/m->n;
+        tam = 470/n;
 
     setcolor(BLACK);
     setlinestyle(0, 1, 1);
-    for(i=0; i<m->m; i++)
+    for(i=0; i<m; i++)
     {
-        for(j=0; j<=m->n; j++)
+        for(j=0; j<=n; j++)
         {
+            (*(mat+i)+j)->x = x+tam*j;
+            (*(mat+i)+j)->y = y;
             rectangle(x, y, x+tam*j, y+tam);
         }
-        x = 40;
+        x=40;
         y+=tam;
     }
 
