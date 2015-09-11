@@ -1,3 +1,8 @@
+/*
+    Editor de sprites
+    Autor: Martínez Mendoza Jesús Alberto @betobitMX
+*/
+
 #include <stdio.h>
 #include <graphics.h>
 #include <stdlib.h>
