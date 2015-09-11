@@ -22,7 +22,7 @@ typedef struct
 {
     int x;
     int y;
-    int color;
+    String color;
 }TCuadro;
 
 // AREA DE COLORES
@@ -34,11 +34,14 @@ void CreaUI();
 int asignaMemoria(TCuadro ***mat, int n, int m);
 void CreaMenu(TBoton *b);
 int CreaMatriz(TCuadro **mat, int n, int m, int x, int y); // Devuelve el tam del cuadrito
+void Guarda(TCuadro **mat, int n, int m, String nombre);
+void VistaPrevia(TCuadro **mat, int n, int m);
 
 int main()
 {
     TCuadro **matriz;
     int n=20, m=20, tam, i, j;
+    char opcion = -1;
     /*printf("\nIngresa n: ");
     scanf("%d", &n);
     printf("\nIngresa m: ");
@@ -47,7 +50,6 @@ int main()
     if(asignaMemoria(&matriz, n, m))
     {
         CreaUI();
-        char opcion = -1;
         int colorSel, colorOriginal;
         tam = CreaMatriz(matriz, n, m, 40, HEIGHT/10-CIRCULO_TAM);
         setfillstyle(1, WHITE);
@@ -73,6 +75,7 @@ int main()
                         ColoresDinamicos(WIDTH-50, HEIGHT/10, &colorSel);
                     setfillstyle(1, colorOriginal);
                 }
+            // Area de dibujo
             } else if (xm > 40 && xm <tam*n+40 && ym > HEIGHT/10-CIRCULO_TAM && ym < HEIGHT/10-CIRCULO_TAM+tam*m ) {
                 setcolor(colorOriginal);
                 // Falta optimizar un monton, pero deadline is coming.... :I
@@ -93,19 +96,31 @@ int main()
                             puntos[5] = (*(matriz+i)+j)->y+tam;
                             puntos[6] = (*(matriz+i)+j)->x;
                             puntos[7] = (*(matriz+i)+j)->y+tam;
+                            sprintf((*(matriz+i)+j)->color, "%lu", colorOriginal);
                             i = m;
                             j = n;
                         }
                     }
 
                 fillpoly(4, puntos);
+                VistaPrevia(matriz, n, m);
+                setfillstyle(1, colorOriginal);
+            // Botones
+            } else if (xm>0 && xm<WIDTH && ym>HEIGHT-textheight("A")*2-10) {
+                 for(i=0; i<4; i++)
+                    if(COLOR(236, 240+i, 241) ==  getpixel(xm, ym))
+                       opcion = i;
             }
-            // Zona de colores
         } while (opcion == -1);
     } else
         printf("\nSin memoria");
 
-    getch();
+    switch(opcion)
+    {
+        case 0: printf("NUEVO"); break;
+        case 1: printf("ABRIR"); break;
+        case 2: printf("GUARDAR"); break;
+    }
     return (0);
 }
 
@@ -241,14 +256,48 @@ void CreaMenu(TBoton *b)
     char i;
     int xi = 50;
     String opciones[] = {"Nuevo", "Abrir", "Guardar", "Salir" };
-    setbkcolor(0x0066F4);
-    setfillstyle(1, 0x0066F4);
-    setcolor(0x003988);
+    setcolor(COLOR(231, 76, 60));//COLOR(52, 73, 94));
     settextstyle(2, HORIZ_DIR, 8);
     for(i=0; i<sizeof(opciones)/50; i++)
     {
+        setbkcolor(COLOR(236, 240+i, 241));
+        setfillstyle(1, COLOR(236, 240+i, 241));
         bar( (b+i)->x = xi-10, HEIGHT-textheight("A")*2-10, xi+textwidth(opciones[i])+10, HEIGHT);
         outtextxy(xi, HEIGHT-textheight("A")*2, opciones[i]);
         xi += textwidth(opciones[i])+40;
+    }
+}
+
+void Guarda(TCuadro **mat, int n, int m, String nombre)
+{
+    FILE *f;
+    int i, j;
+    f = fopen(nombre, "rb+");
+    fclose(f);
+}
+
+void VistaPrevia(TCuadro **mat, int n, int m)
+{
+    int i, j,
+        xi = WIDTH - 175,
+        yi = HEIGHT- 235,
+        tam = 7;
+    setcolor(BLACK);
+    setlinestyle(0, 1, 1);
+    bar(xi, yi, xi+tam*n, yi+tam*m);
+
+    for(i=0; i<m;i++)
+    {
+        for(j=0; j<=n; j++)
+        {
+            if((*(mat+i)+j)->color)
+            {
+                setfillstyle(1, atoll((*(mat+i)+j)->color));
+                bar(xi, yi, xi+tam, yi+tam);
+            }
+            xi+=tam;
+        }
+        xi =WIDTH - 175;
+        yi+=tam;
     }
 }
