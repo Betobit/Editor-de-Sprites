@@ -22,24 +22,28 @@ typedef struct
 {
     int n;
     int m;
-    int **matriz;
+    int **matriz; //x,y del elemento
 }TMatriz;
 
 // AREA DE COLORES
 void ColoresPrincipales(int xInicial, int yInicial);
 void ColoresDinamicos(int xInicial, int yInicial, int *color);
-void CreaUI(TMatriz *matriz);
+void CreaUI();
 
 // UI
 void CreaMenu(TBoton *b);
-void CreaMatriz(TMatriz *m, int x, int y);
+int CreaMatriz(TMatriz *m, int x, int y);
 
 int main()
 {
-    TMatriz matriz = {20, 20, NULL};
-    CreaUI(&matriz);
+    TMatriz matriz = {15, 15, NULL};
+    CreaUI();
 
-    while(true)
+    char opcion = -1;
+    int colorSel;
+    int tam = CreaMatriz(&matriz, 40, HEIGHT/10-CIRCULO_TAM);
+
+    do
     {
         while(!ismouseclick(WM_LBUTTONDOWN));
         int xm, ym;
@@ -49,16 +53,21 @@ int main()
         if( xm > WIDTH-150 - CIRCULO_TAM && xm < WIDTH - 40 &&
             ym > HEIGHT/10 - CIRCULO_TAM && ym < HEIGHT - 250)
         {
-            int colorSel = getpixel(xm, ym);
+            colorSel = getpixel(xm, ym);
             if(colorSel != 55590444)
             {
                 setcolor(colorSel);
                 setlinestyle(0, 1, 4);
-                rectangle(40, HEIGHT/10-CIRCULO_TAM, 477, 506);
+                rectangle(40, HEIGHT/10-CIRCULO_TAM, tam*matriz.n+40, HEIGHT/10-CIRCULO_TAM+tam*matriz.m);
                 ColoresDinamicos(WIDTH-50, HEIGHT/10, &colorSel);
             }
+        } else if (xm > 40 && xm <tam*matriz.n+40 && ym > HEIGHT/10-CIRCULO_TAM && ym < HEIGHT/10-CIRCULO_TAM+tam*matriz.m   ) {
+            setcolor(colorSel);
+            bar(xm, ym,xm+40, ym+40);
         }
-    }
+        // Zona de colores
+    } while (opcion == -1);
+    printf("fin");
     getch();
     return (0);
 }
@@ -113,6 +122,7 @@ void ColoresPrincipales(int xInicial, int yInicial)
 }
 void ColoresDinamicos(int xInicial, int yInicial, int *color)
 {
+    setlinestyle(1, 0, 3);
     char j,
          i,
          numeroCirculos = 9;
@@ -132,7 +142,7 @@ void ColoresDinamicos(int xInicial, int yInicial, int *color)
     }
 }
 
-void CreaUI(TMatriz *matriz)
+void CreaUI()
 {
     initwindow(WIDTH,HEIGHT,"Editor de Sprites");
     setfillstyle(1,COLOR(44, 62, 80));
@@ -142,10 +152,9 @@ void CreaUI(TMatriz *matriz)
     ColoresPrincipales(WIDTH-150, HEIGHT/10);
     TBoton botones[4];
     CreaMenu(botones);
-    CreaMatriz(matriz, 40, HEIGHT/10-CIRCULO_TAM);
 }
 
-void CreaMatriz(TMatriz *m, int x, int y)
+int CreaMatriz(TMatriz *m, int x, int y)
 {
     int i, j,
         tam = 470/m->n;
@@ -154,13 +163,15 @@ void CreaMatriz(TMatriz *m, int x, int y)
     setlinestyle(0, 1, 1);
     for(i=0; i<m->m; i++)
     {
-        for(j=0; j<m->n; j++)
+        for(j=0; j<=m->n; j++)
         {
             rectangle(x, y, x+tam*j, y+tam);
         }
         x = 40;
         y+=tam;
     }
+
+    return tam;
 }
 
 void CreaMenu(TBoton *b)
