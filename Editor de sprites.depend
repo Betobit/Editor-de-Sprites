@@ -1,0 +1,11 @@
+# depslib dependency file v1.0
+1441946571 source:c:\users\hongo\documents\editor-de-sprites\main.c
+	<stdio.h>
+	<graphics.h>
+	<stdlib.h>
+
+1266119414 c:\program files (x86)\codeblocks-ep\sdk\winbgim\include\graphics.h
+	<windows.h>
+	<limits.h>
+	<sstream>
+
