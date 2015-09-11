@@ -4,7 +4,7 @@
 
 #define CIRCULO_TAM 14
 #define HEIGHT 600
-#define WIDTH 800
+#define WIDTH 700
 
 typedef char String[50];
 typedef struct {
@@ -18,26 +18,46 @@ typedef struct {
     int y;
 }TBoton;
 
+typedef struct
+{
+    int n;
+    int m;
+    int **matriz;
+}TMatriz;
+
 // AREA DE COLORES
 void ColoresPrincipales(int xInicial, int yInicial);
 void ColoresDinamicos(int xInicial, int yInicial, int *color);
-void CreaUI();
+void CreaUI(TMatriz *matriz);
 
-// MENU
+// UI
 void CreaMenu(TBoton *b);
+void CreaMatriz(TMatriz *m, int x, int y);
 
 int main()
 {
-    CreaUI();
+    TMatriz matriz = {20, 20, NULL};
+    CreaUI(&matriz);
+
     while(true)
     {
         while(!ismouseclick(WM_LBUTTONDOWN));
         int xm, ym;
         getmouseclick(WM_LBUTTONDOWN, xm, ym);
-        int colorSel = getpixel(xm, ym);
-        setcolor(colorSel);
-        rectangle(40, HEIGHT/10-CIRCULO_TAM, WIDTH-190, HEIGHT-90);
-        ColoresDinamicos(WIDTH-50, HEIGHT/10, &colorSel);
+
+        // Zona de colores
+        if( xm > WIDTH-150 - CIRCULO_TAM && xm < WIDTH - 40 &&
+            ym > HEIGHT/10 - CIRCULO_TAM && ym < HEIGHT - 250)
+        {
+            int colorSel = getpixel(xm, ym);
+            if(colorSel != 55590444)
+            {
+                setcolor(colorSel);
+                setlinestyle(0, 1, 4);
+                rectangle(40, HEIGHT/10-CIRCULO_TAM, 477, 506);
+                ColoresDinamicos(WIDTH-50, HEIGHT/10, &colorSel);
+            }
+        }
     }
     getch();
     return (0);
@@ -112,7 +132,7 @@ void ColoresDinamicos(int xInicial, int yInicial, int *color)
     }
 }
 
-void CreaUI()
+void CreaUI(TMatriz *matriz)
 {
     initwindow(WIDTH,HEIGHT,"Editor de Sprites");
     setfillstyle(1,COLOR(44, 62, 80));
@@ -122,6 +142,25 @@ void CreaUI()
     ColoresPrincipales(WIDTH-150, HEIGHT/10);
     TBoton botones[4];
     CreaMenu(botones);
+    CreaMatriz(matriz, 40, HEIGHT/10-CIRCULO_TAM);
+}
+
+void CreaMatriz(TMatriz *m, int x, int y)
+{
+    int i, j,
+        tam = 470/m->n;
+
+    setcolor(BLACK);
+    setlinestyle(0, 1, 1);
+    for(i=0; i<m->m; i++)
+    {
+        for(j=0; j<m->n; j++)
+        {
+            rectangle(x, y, x+tam*j, y+tam);
+        }
+        x = 40;
+        y+=tam;
+    }
 }
 
 void CreaMenu(TBoton *b)
