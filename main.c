@@ -42,11 +42,17 @@ int main()
     TCuadro **matriz;
     int n=20, m=20, tam, i, j;
     char opcion = -1;
-    /*printf("\nIngresa n: ");
+    printf("\nIngresa n: ");
     scanf("%d", &n);
     printf("\nIngresa m: ");
-    scanf("%d", &m);*/
+    scanf("%d", &m);
 
+    if(m>n)
+    {
+        tam = n;
+        n = m;
+        m = tam;
+    }
     if(asignaMemoria(&matriz, n, m))
     {
         CreaUI();
@@ -189,9 +195,9 @@ void ColoresPrincipales(int xInicial, int yInicial)
         for(j=0; j<CIRCULO_TAM; j++)
         {
             fillellipse(xInicial, yInicial, j, j);
-            //delay(6);
+            delay(6);
         }
-        //delay(4);
+        delay(4);
         yInicial += CIRCULO_TAM/2*5;
     }
 }
@@ -288,7 +294,7 @@ void VistaPrevia(TCuadro **mat, int n, int m)
 
     for(i=0; i<m;i++)
     {
-        for(j=0; j<=n; j++)
+        for(j=0; j<n; j++)
         {
             if((*(mat+i)+j)->color)
             {
