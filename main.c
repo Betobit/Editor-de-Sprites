@@ -63,12 +63,14 @@ int main()
                 ym > HEIGHT/10 - CIRCULO_TAM && ym < HEIGHT - 250)
             {
                 colorSel = colorOriginal = getpixel(xm, ym);
+
                 if(colorSel != 55590444)
                 {
                     setcolor(colorSel);
-                    setlinestyle(0, 1, 4);
+                    setlinestyle(0, 0, 3);
                     rectangle(39, HEIGHT/10-CIRCULO_TAM-1, tam*n+41, HEIGHT/10-CIRCULO_TAM+tam*m+1);
-                    ColoresDinamicos(WIDTH-50, HEIGHT/10, &colorSel);
+                    if(xm < WIDTH - 80)
+                        ColoresDinamicos(WIDTH-50, HEIGHT/10, &colorSel);
                     setfillstyle(1, colorOriginal);
                 }
             } else if (xm > 40 && xm <tam*n+40 && ym > HEIGHT/10-CIRCULO_TAM && ym < HEIGHT/10-CIRCULO_TAM+tam*m ) {
@@ -93,7 +95,6 @@ int main()
                             puntos[7] = (*(matriz+i)+j)->y+tam;
                             i = m;
                             j = n;
-                            (*(matriz+i)+j)->color = colorSel;
                         }
                     }
 
