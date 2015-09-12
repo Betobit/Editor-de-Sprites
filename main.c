@@ -123,17 +123,17 @@ int main()
                  for(i=0; i<5; i++)
                     if(COLOR(236, 240+i, 241) ==  getpixel(xm, ym))
                        opcion = i;
+
+                switch(opcion)
+                {
+                    case 0: printf("NUEVO"); break;
+                    case 1: printf("ABRIR"); break;
+                    case 2: Guarda(matriz, n, m, "holi"); break;
+                }
             }
-        } while (opcion == -1);
+        } while (opcion !=4);
     } else
         printf("\nSin memoria");
-
-    switch(opcion)
-    {
-        case 0: printf("NUEVO"); break;
-        case 1: printf("ABRIR"); break;
-        case 2: printf("GUARDAR"); break;
-    }
 
     liberaMemoria(matriz, n);
     return (0);
@@ -270,9 +270,9 @@ void CreaMenu(TBoton *b)
 {
     char i;
     int xi = 50;
-    String opciones[] = {"Nuevo", "Abrir", "Guardar", "Guardar como...", "Salir" };
+    String opciones[] = {"Nuevo", "Abrir", "Guardar", "Guardar como", "Salir" };
     setcolor(COLOR(231, 76, 60));//COLOR(52, 73, 94));
-    settextstyle(2, HORIZ_DIR, 8);
+    settextstyle(8, HORIZ_DIR, 2);
     for(i=0; i<sizeof(opciones)/50; i++)
     {
         setbkcolor(COLOR(236, 240+i, 241));
@@ -287,10 +287,40 @@ void Guarda(TCuadro **mat, int n, int m, String nombre)
 {
     FILE *f;
     int i, j;
-    f = fopen(nombre, "wb");
-    for(i=0; i<n; i++)
-        for(j=0; j<m; j++)
-//            fwrite(jugadores, sizeof(Registro), TOP, f);
+    String aux;
+    sprintf(aux, "%s.dat", nombre);
+    f = fopen(aux, "wt");
+    if(f)
+    {
+         fprintf(f,"%s\n",nombre);
+         fprintf(f,"%d\n",n);
+         fprintf(f,"%d\n",m);
+         for(int i=0;i<n;i++)
+             for(int j=0;j<m;j++)
+             {
+                 TCuadro cuadro = *(*(mat+i)+j);
+                 fprintf(f,"%d %d %s\n",cuadro.x, cuadro.y, cuadro.color);
+             }
+    }
+
+    // Avisa que el archivo ha sido guardado.
+    sprintf(aux, "\"%s\" guardado con éxito", nombre);
+    setcolor(COLOR(3, 166, 120));
+    setbkcolor(COLOR(3, 166, 120));
+    for(i=0; i<textheight("A")*1.8; i++)
+    {
+        line(WIDTH/2 - textwidth(aux)/2-2, i, WIDTH/2 + textwidth(aux)/2, i);
+        delay(4);
+    }
+    setcolor(WHITE);
+    outtextxy(WIDTH/2 - textwidth(aux)/2, 8, aux);
+    delay(2000);
+    setcolor(COLOR(44, 62, 80));
+    for(i=textheight("A")*1.8; i>0; i--)
+    {
+        line(0, i, WIDTH, i);
+        delay(4);
+    }
     fclose(f);
 }
 
