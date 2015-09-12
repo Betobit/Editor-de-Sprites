@@ -36,11 +36,12 @@ void ColoresDinamicos(int xInicial, int yInicial, int *color);
 void CreaUI();
 
 // UI
-int asignaMemoria(TCuadro ***mat, int n, int m);
+int AsignaMemoria(TCuadro ***mat, int n, int m);
 void CreaMenu(TBoton *b);
 int CreaMatriz(TCuadro **mat, int n, int m, int x, int y); // Devuelve el tam del cuadrito
 void Guarda(TCuadro **mat, int n, int m, String nombre);
-void liberaMemoria(TCuadro **mat, int n);
+void LiberaMemoria(TCuadro **mat, int n);
+void MuestraInput(String texto);
 void VistaPrevia(TCuadro **mat, int n, int m);
 
 
@@ -60,7 +61,7 @@ int main()
         n = m;
         m = tam;
     }
-    if(asignaMemoria(&matriz, n, m))
+    if(AsignaMemoria(&matriz, n, m))
     {
         CreaUI();
         int colorSel, colorOriginal;
@@ -135,11 +136,11 @@ int main()
     } else
         printf("\nSin memoria");
 
-    liberaMemoria(matriz, n);
+    LiberaMemoria(matriz, n);
     return (0);
 }
 
-int asignaMemoria(TCuadro ***mat, int n, int m)
+int AsignaMemoria(TCuadro ***mat, int n, int m)
 {
     int res = 1,i;
 
@@ -324,13 +325,18 @@ void Guarda(TCuadro **mat, int n, int m, String nombre)
     fclose(f);
 }
 
-void liberaMemoria(TCuadro **mat, int n)
+void LiberaMemoria(TCuadro **mat, int n)
 {
     int i;
 
     for(i=0; i<n; i++)
         free(*(mat+i));
     free(mat);
+}
+
+void MuestraInput(String texto)
+{
+
 }
 void VistaPrevia(TCuadro **mat, int n, int m)
 {
