@@ -41,7 +41,7 @@ void CreaMenu(TBoton *b);
 int CreaMatriz(TCuadro **mat, int n, int m, int x, int y); // Devuelve el tam del cuadrito
 void Guarda(TCuadro **mat, int n, int m, String nombre);
 void LiberaMemoria(TCuadro **mat, int n);
-void MuestraInput(String texto);
+void MuestraInput(String placeholder, String texto);
 void VistaPrevia(TCuadro **mat, int n, int m);
 
 
@@ -50,6 +50,7 @@ int main()
     TCuadro **matriz;
     int n=20, m=20, tam, i, j;
     char opcion = -1;
+    String archivo;
     printf("\nIngresa n: ");
     scanf("%d", &n);
     printf("\nIngresa m: ");
@@ -129,7 +130,11 @@ int main()
                 {
                     case 0: printf("NUEVO"); break;
                     case 1: printf("ABRIR"); break;
-                    case 2: Guarda(matriz, n, m, "holi"); break;
+                    case 2: Guarda(matriz, n, m, "holi");break;
+                    case 3: MuestraInput(" Nombre del archivo", archivo);
+                            if(archivo[0]!='\0')
+                                Guarda(matriz, n, m, archivo);
+                            break;
                 }
             }
         } while (opcion !=4);
@@ -302,26 +307,28 @@ void Guarda(TCuadro **mat, int n, int m, String nombre)
                  TCuadro cuadro = *(*(mat+i)+j);
                  fprintf(f,"%d %d %s\n",cuadro.x, cuadro.y, cuadro.color);
              }
-    }
 
-    // Avisa que el archivo ha sido guardado.
-    sprintf(aux, "\"%s\" guardado con éxito", nombre);
-    setcolor(COLOR(3, 166, 120));
-    setbkcolor(COLOR(3, 166, 120));
-    for(i=0; i<textheight("A")*1.8; i++)
-    {
-        line(WIDTH/2 - textwidth(aux)/2-2, i, WIDTH/2 + textwidth(aux)/2, i);
-        delay(4);
-    }
-    setcolor(WHITE);
-    outtextxy(WIDTH/2 - textwidth(aux)/2, 8, aux);
-    delay(2000);
-    setcolor(COLOR(44, 62, 80));
-    for(i=textheight("A")*1.8; i>0; i--)
-    {
-        line(0, i, WIDTH, i);
-        delay(4);
-    }
+        sprintf(aux, "\"%s\" guardado con éxito", nombre);
+    } else
+        sprintf(aux, "No existe el  archivo\" %s\" ", nombre);
+
+        // Avisa que el archivo ha sido guardado.
+        setcolor(COLOR(3, 166, 120));
+        setbkcolor(COLOR(3, 166, 120));
+        for(i=0; i<textheight("A")*1.8; i++)
+        {
+            line(WIDTH/2 - textwidth(aux)/2-2, i, WIDTH/2 + textwidth(aux)/2, i);
+            delay(4);
+        }
+        setcolor(WHITE);
+        outtextxy(WIDTH/2 - textwidth(aux)/2, 8, aux);
+        delay(2000);
+        setcolor(COLOR(44, 62, 80));
+        for(i=textheight("A")*1.8; i>=0; i--)
+        {
+            line(0, i, WIDTH, i);
+            delay(4);
+        }
     fclose(f);
 }
 
@@ -334,9 +341,65 @@ void LiberaMemoria(TCuadro **mat, int n)
     free(mat);
 }
 
-void MuestraInput(String texto)
+void MuestraInput(String placeholder, String texto)
 {
+    int i,
+        xi = WIDTH/2-textwidth(placeholder)/2,
+        y = 8,
+        tecla;
+    char letra[2];
+    setcolor(WHITE);
+    for(i=0; i<textheight("A")*1.3; i++)
+    {
+        line(WIDTH/2 - textwidth(placeholder)/2-2, i, WIDTH/2 + textwidth(placeholder)/2+2, i);
+        delay(4);
+    }
+    setbkcolor(WHITE);
+    setcolor(COLOR(200, 200, 200));
+    outtextxy(WIDTH/2 - textwidth(placeholder)/2, 8, placeholder);
+    i=0;
+    do
+    {
+        do
+        {
+            setcolor(BLACK);
+            outtextxy(xi, y, "_");
+            delay(100);
+            setcolor(WHITE);
+            outtextxy(xi, y, "_");
+            delay(100);
+        }while(!kbhit());
 
+        tecla = getch();
+        if(tecla!=13 && tecla!='\b')
+        {
+            letra[0] = tecla;
+            letra[1] = '\0';
+            setcolor(BLACK);
+            outtextxy(xi, y, letra);
+            xi+=textwidth(letra);
+            texto[i++] = letra[0];
+
+        } else {
+            if(tecla=='\b')
+            {
+                if(i>0)
+                {
+                    letra[0] = texto[--i];
+                    letra[1] = '\0';
+                    xi-=textwidth(letra);
+                    outtextxy(xi, y, letra);
+                } else {
+                    tecla = 13;
+                }
+            }
+        }
+    }while(tecla!=13 && i<15);
+    texto[i] = '\0';
+
+    setcolor(COLOR(44, 62, 80));
+    for(i=textheight("A")*1.8; i>=0; i--)
+        line(0, i, WIDTH, i);
 }
 void VistaPrevia(TCuadro **mat, int n, int m)
 {
