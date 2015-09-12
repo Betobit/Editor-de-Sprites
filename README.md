@@ -1,5 +1,6 @@
-Editor de sprites hecho con BGI. Programación estructurada + memoria dinámica :D
+Editor de sprites hecho con BGI
 ================================================================================
+Programación estructurada + memoria dinámica :D
 
 PENDIENTES:
 	- Dibujar formas
