@@ -40,7 +40,9 @@ int asignaMemoria(TCuadro ***mat, int n, int m);
 void CreaMenu(TBoton *b);
 int CreaMatriz(TCuadro **mat, int n, int m, int x, int y); // Devuelve el tam del cuadrito
 void Guarda(TCuadro **mat, int n, int m, String nombre);
+void liberaMemoria(TCuadro **mat, int n);
 void VistaPrevia(TCuadro **mat, int n, int m);
+
 
 int main()
 {
@@ -118,7 +120,7 @@ int main()
                 setfillstyle(1, colorOriginal);
             // Botones
             } else if (xm>0 && xm<WIDTH && ym>HEIGHT-textheight("A")*2-10) {
-                 for(i=0; i<4; i++)
+                 for(i=0; i<5; i++)
                     if(COLOR(236, 240+i, 241) ==  getpixel(xm, ym))
                        opcion = i;
             }
@@ -132,6 +134,8 @@ int main()
         case 1: printf("ABRIR"); break;
         case 2: printf("GUARDAR"); break;
     }
+
+    liberaMemoria(matriz, n);
     return (0);
 }
 
@@ -195,14 +199,14 @@ void ColoresPrincipales(int xInicial, int yInicial)
         if(i==9)
         {
             xInicial += 50;
-            yInicial -= (CIRCULO_TAM/2*5)*9;
+            yInicial -= CIRCULO_TAM/2*45;
         }
         for(j=0; j<CIRCULO_TAM; j++)
         {
             fillellipse(xInicial, yInicial, j, j);
-            delay(6);
+            delay(3);
         }
-        delay(4);
+        delay(2);
         yInicial += CIRCULO_TAM/2*5;
     }
 }
@@ -221,9 +225,9 @@ void ColoresDinamicos(int xInicial, int yInicial, int *color)
         for(j=0;j<CIRCULO_TAM;j++)
         {
             fillellipse(xInicial, yInicial, j, j);
-            delay(5);
+            delay(3);
         }
-        delay(10);
+        delay(1);
         yInicial += CIRCULO_TAM/2*5;
     }
 }
@@ -266,7 +270,7 @@ void CreaMenu(TBoton *b)
 {
     char i;
     int xi = 50;
-    String opciones[] = {"Nuevo", "Abrir", "Guardar", "Salir" };
+    String opciones[] = {"Nuevo", "Abrir", "Guardar", "Guardar como...", "Salir" };
     setcolor(COLOR(231, 76, 60));//COLOR(52, 73, 94));
     settextstyle(2, HORIZ_DIR, 8);
     for(i=0; i<sizeof(opciones)/50; i++)
@@ -283,10 +287,21 @@ void Guarda(TCuadro **mat, int n, int m, String nombre)
 {
     FILE *f;
     int i, j;
-    f = fopen(nombre, "rb+");
+    f = fopen(nombre, "wb");
+    for(i=0; i<n; i++)
+        for(j=0; j<m; j++)
+//            fwrite(jugadores, sizeof(Registro), TOP, f);
     fclose(f);
 }
 
+void liberaMemoria(TCuadro **mat, int n)
+{
+    int i;
+
+    for(i=0; i<n; i++)
+        free(*(mat+i));
+    free(mat);
+}
 void VistaPrevia(TCuadro **mat, int n, int m)
 {
     int i, j,
