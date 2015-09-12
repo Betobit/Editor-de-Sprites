@@ -292,7 +292,7 @@ void VistaPrevia(TCuadro **mat, int n, int m)
     int i, j,
         xi = WIDTH - 175,
         yi = HEIGHT- 235,
-        tam = 7;
+        tam = 140/n;
     setcolor(BLACK);
     setlinestyle(0, 1, 1);
     bar(xi, yi, xi+tam*n, yi+tam*m);
