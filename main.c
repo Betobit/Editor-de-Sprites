@@ -51,10 +51,10 @@ int main()
     int n=20, m=20, tam, i, j;
     char opcion = -1;
     String archivo;
-    printf("\nIngresa n: ");
+    /*printf("\nIngresa n: ");
     scanf("%d", &n);
     printf("\nIngresa m: ");
-    scanf("%d", &m);
+    scanf("%d", &m);*/
 
     if(m>n)
     {
@@ -62,6 +62,7 @@ int main()
         n = m;
         m = tam;
     }
+    
     if(AsignaMemoria(&matriz, n, m))
     {
         CreaUI();
@@ -73,14 +74,14 @@ int main()
         {
             while(!ismouseclick(WM_LBUTTONDOWN));
             int xm, ym;
-            getmouseclick(WM_LBUTTONDOWN, xm, ym);
-
+            getmouseclick(WM_LBUTTONDOWN, &xm, &ym);
+            
             // Zona de colores
             if( xm > WIDTH-150 - CIRCULO_TAM && xm < WIDTH - 40 &&
                 ym > HEIGHT/10 - CIRCULO_TAM && ym < HEIGHT - 250)
             {
                 colorSel = colorOriginal = getpixel(xm, ym);
-
+                
                 if(colorSel != 55590444)
                 {
                     setcolor(colorSel);
@@ -111,7 +112,7 @@ int main()
                             puntos[5] = (*(matriz+i)+j)->y+tam;
                             puntos[6] = (*(matriz+i)+j)->x;
                             puntos[7] = (*(matriz+i)+j)->y+tam;
-                            sprintf((*(matriz+i)+j)->color, "%lu", colorOriginal);
+                            sprintf((*(matriz+i)+j)->color, "%d", colorOriginal);
                             i = m;
                             j = n;
                         }
@@ -122,7 +123,8 @@ int main()
                 setfillstyle(1, colorOriginal);
             // Botones
             } else if (xm>0 && xm<WIDTH && ym>HEIGHT-textheight("A")*2-10) {
-                 for(i=0; i<5; i++)
+    
+                for(i=0; i<5; i++)
                     if(COLOR(236, 240+i, 241) ==  getpixel(xm, ym))
                        opcion = i;
 
@@ -200,7 +202,7 @@ void ColoresPrincipales(int xInicial, int yInicial)
 
     for(i=0; i<numeroCirculos;i++)
     {
-        setfillstyle(1, colores[i]);
+        setfillstyle(1,  COLOR (random(255), random(255), random(255)));//colores[i]);
         if(i==9)
         {
             xInicial += 50;
@@ -238,7 +240,7 @@ void ColoresDinamicos(int xInicial, int yInicial, int *color)
 
 void CreaUI()
 {
-    initwindow(WIDTH,HEIGHT,"Editor de Sprites");
+    initwindow(WIDTH,HEIGHT);
     setfillstyle(1,COLOR(44, 62, 80));
     setcolor(COLOR(44, 62, 80));
     bar(0, 0, WIDTH, HEIGHT);
@@ -306,7 +308,7 @@ void Guarda(TCuadro **mat, int n, int m, String nombre)
                  fprintf(f,"%d %d %s\n",cuadro.x, cuadro.y, cuadro.color);
              }
 
-        sprintf(aux, "\"%s\" guardado con éxito", nombre);
+        sprintf(aux, "\"%s\" guardado con exito", nombre);
     } else
         sprintf(aux, "No existe el  archivo\" %s\" ", nombre);
 
