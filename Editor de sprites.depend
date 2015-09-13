@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1442086207 source:c:\users\hongo\documents\editor-de-sprites\main.c
+1442091024 source:c:\users\hongo\documents\editor-de-sprites\main.c
 	<stdio.h>
 	<graphics.h>
 	<stdlib.h>

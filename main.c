@@ -128,13 +128,12 @@ int main()
 
                 switch(opcion)
                 {
-                    case 0: printf("NUEVO"); break;
+                    case 0: MuestraInput(" N, M", archivo); break;
                     case 1: printf("ABRIR"); break;
                     case 2: Guarda(matriz, n, m, "holi");break;
                     case 3: MuestraInput(" Nombre del archivo", archivo);
                             if(archivo[0]!='\0')
                                 Guarda(matriz, n, m, archivo);
-                            break;
                 }
             }
         } while (opcion !=4);
@@ -224,7 +223,6 @@ void ColoresDinamicos(int xInicial, int yInicial, int *color)
          numeroCirculos = 9;
 
     setcolor(COLOR(44, 62, 80));
-    int part[] = { color[0]/9, color[1]/9, color[2]/9 };
     for(i=0; i<numeroCirculos;i++)
     {
         setfillstyle(1, *color-=24);
@@ -301,8 +299,8 @@ void Guarda(TCuadro **mat, int n, int m, String nombre)
          fprintf(f,"%s\n",nombre);
          fprintf(f,"%d\n",n);
          fprintf(f,"%d\n",m);
-         for(int i=0;i<n;i++)
-             for(int j=0;j<m;j++)
+         for(i=0; i<n; i++)
+             for(j=0; j<m; j++)
              {
                  TCuadro cuadro = *(*(mat+i)+j);
                  fprintf(f,"%d %d %s\n",cuadro.x, cuadro.y, cuadro.color);
