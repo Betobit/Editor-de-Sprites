@@ -32,7 +32,7 @@ typedef struct
 
 // AREA DE COLORES
 void ColoresPrincipales(int xInicial, int yInicial);
-void ColoresDinamicos(int xInicial, int yInicial, int *color);
+void ColoresDinamicos(int xInicial, int yInicial, int color);
 void CreaUI();
 
 // UI
@@ -75,21 +75,20 @@ int main()
             while(!ismouseclick(WM_LBUTTONDOWN));
             int xm, ym;
             getmouseclick(WM_LBUTTONDOWN, &xm, &ym);
-            
-            // Zona de colores
-            if( xm > WIDTH-150 - CIRCULO_TAM && xm < WIDTH - 40 &&
-                ym > HEIGHT/10 - CIRCULO_TAM && ym < HEIGHT - 250)
+            //colorOriginal  = COLOR(getpixel(xm, ym), getpixel(xm, ym), getpixel(xm, ym));            // Zona de colores
+            if( xm>WIDTH-150-CIRCULO_TAM && xm<WIDTH-40 && ym>HEIGHT/10-CIRCULO_TAM && ym<HEIGHT- 250 )
             {
                 colorSel = colorOriginal = getpixel(xm, ym);
+                printf("\n%d", colorOriginal);
                 
                 if(colorSel != 55590444)
                 {
-                    setcolor(colorSel);
+                    setcolor(COLOR(getpixel(xm, ym), getpixel(xm, ym), getpixel(xm, ym)));
                     setlinestyle(0, 0, 3);
                     rectangle(39, HEIGHT/10-CIRCULO_TAM-1, tam*n+41, HEIGHT/10-CIRCULO_TAM+tam*m+1);
                     if(xm < WIDTH - 80)
-                        ColoresDinamicos(WIDTH-50, HEIGHT/10, &colorSel);
-                    setfillstyle(1, colorOriginal);
+                        ColoresDinamicos(WIDTH-50, HEIGHT/10, colorSel);
+                    //setfillstyle(1, colorOriginal);
                 }
             // Area de dibujo
             } else if (xm > 40 && xm <tam*n+40 && ym > HEIGHT/10-CIRCULO_TAM && ym < HEIGHT/10-CIRCULO_TAM+tam*m ) {
@@ -142,7 +141,7 @@ int main()
     } else
         printf("\nSin memoria");
 
-    LiberaMemoria(matriz, n);
+    closegraph();//LiberaMemoria(matriz, n);
     return (0);
 }
 
@@ -179,30 +178,30 @@ void ColoresPrincipales(int xInicial, int yInicial)
     char j,
          i,
          numeroCirculos = 18;
-    int colores[] = {
-        COLOR(255, 214, 46), // Amarillo
-        COLOR(67, 30, 108),  // Morado
-        COLOR(94, 52, 28),   // Café
-        COLOR(254, 51, 28),  // Naranja
-        COLOR(234, 20, 96),  // Rosa
-        COLOR(15, 146, 245), // Azul 1
-        COLOR(11, 73, 112),  // Azul rey
-        COLOR(0, 191, 0),    // Verde fuerte
-        COLOR(0, 128, 0),    // Verde claro
-
-        COLOR(79, 186, 138),
-        COLOR(255, 206, 109),
-        COLOR(255, 90, 60),
-        COLOR(248,64, 69),
-        COLOR(255, 17, 21),  // Rojo
-        COLOR(155, 89, 182),
-        COLOR(236, 240, 241),
-        COLOR(127, 140, 141)
+    int colores[][3] = {
+        {255, 214, 46}, // Amarillo
+        {67, 30, 108},  // Morado
+        {94, 52, 28},   // Café
+        {254, 51, 28},  // Naranja
+        {234, 20, 96},  // Rosa
+        {15, 146, 245}, // Azul 1
+        {11, 73, 112},  // Azul rey
+        {0, 191, 0},    // Verde fuerte
+        {0, 128, 0},    // Verde claro
+        
+        {79, 186, 138},
+        {255, 206, 109},
+        {255, 90, 60},
+        {248,64, 69},
+        {255, 17, 21},  // Rojo
+        {155, 89, 182},
+        {236, 240, 241},
+        {127, 140, 141}
     };
 
     for(i=0; i<numeroCirculos;i++)
     {
-        setfillstyle(1,  COLOR (random(255), random(255), random(255)));//colores[i]);
+        setfillstyle(1, COLOR (colores[i][0], colores[i][1], colores[i][2]));
         if(i==9)
         {
             xInicial += 50;
@@ -217,7 +216,7 @@ void ColoresPrincipales(int xInicial, int yInicial)
         yInicial += CIRCULO_TAM/2*5;
     }
 }
-void ColoresDinamicos(int xInicial, int yInicial, int *color)
+void ColoresDinamicos(int xInicial, int yInicial, int color)
 {
     setlinestyle(1, 0, 3);
     char j,
@@ -227,7 +226,7 @@ void ColoresDinamicos(int xInicial, int yInicial, int *color)
     setcolor(COLOR(44, 62, 80));
     for(i=0; i<numeroCirculos;i++)
     {
-        setfillstyle(1, *color-=24);
+        setfillstyle(1, COLOR(color, color, color));
         for(j=0;j<CIRCULO_TAM;j++)
         {
             fillellipse(xInicial, yInicial, j, j);
