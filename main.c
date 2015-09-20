@@ -66,33 +66,44 @@ int main()
     if(AsignaMemoria(&matriz, n, m))
     {
         CreaUI();
-        int colorSel, colorOriginal;
+        struct palettetype pal;
+        int colorSel = COLOR(254, 254, 254);
         tam = CreaMatriz(matriz, n, m, 40, HEIGHT/10-CIRCULO_TAM);
         setfillstyle(1, WHITE);
-        colorOriginal = COLOR(254, 254, 254);
+        
+        
+        /* grab a copy of the palette */
+        
+        getpalette(&pal);
+        
+        /* create gray scale */
+        
         do
         {
             while(!ismouseclick(WM_LBUTTONDOWN));
             int xm, ym;
             getmouseclick(WM_LBUTTONDOWN, &xm, &ym);
-            //colorOriginal  = COLOR(getpixel(xm, ym), getpixel(xm, ym), getpixel(xm, ym));            // Zona de colores
+            colorSel = getpixel(xm, ym);
+            
+            // Zona de colores
             if( xm>WIDTH-150-CIRCULO_TAM && xm<WIDTH-40 && ym>HEIGHT/10-CIRCULO_TAM && ym<HEIGHT- 250 )
             {
-                colorSel = colorOriginal = getpixel(xm, ym);
-                printf("\n%d", colorOriginal);
+                
+                for (i=0; i<pal.size; i++)
+                    setrgbpalette(pal.colors[i], i*4, i*4, 0);
                 
                 if(colorSel != 55590444)
                 {
-                    setcolor(COLOR(getpixel(xm, ym), getpixel(xm, ym), getpixel(xm, ym)));
+                    setcolor(-1);
                     setlinestyle(0, 0, 3);
                     rectangle(39, HEIGHT/10-CIRCULO_TAM-1, tam*n+41, HEIGHT/10-CIRCULO_TAM+tam*m+1);
                     if(xm < WIDTH - 80)
                         ColoresDinamicos(WIDTH-50, HEIGHT/10, colorSel);
-                    //setfillstyle(1, colorOriginal);
+                    setfillstyle(1, 5);
                 }
             // Area de dibujo
             } else if (xm > 40 && xm <tam*n+40 && ym > HEIGHT/10-CIRCULO_TAM && ym < HEIGHT/10-CIRCULO_TAM+tam*m ) {
-                setcolor(colorOriginal);
+                setcolor(4);
                 // Falta optimizar un monton, pero deadline is coming.... :I
                 setlinestyle(0, 1, 1);
                 int x, y, puntos[8];
@@ -111,7 +122,7 @@ int main()
                             puntos[5] = (*(matriz+i)+j)->y+tam;
                             puntos[6] = (*(matriz+i)+j)->x;
                             puntos[7] = (*(matriz+i)+j)->y+tam;
-                            sprintf((*(matriz+i)+j)->color, "%d", colorOriginal);
+                            sprintf((*(matriz+i)+j)->color, "%d", colorSel);
                             i = m;
                             j = n;
                         }
@@ -119,13 +130,16 @@ int main()
 
                 fillpoly(4, puntos);
                 VistaPrevia(matriz, n, m);
-                setfillstyle(1, colorOriginal);
+                setfillstyle(1, colorSel);
             // Botones
             } else if (xm>0 && xm<WIDTH && ym>HEIGHT-textheight("A")*2-10) {
     
                 for(i=0; i<5; i++)
-                    if(COLOR(236, 240+i, 241) ==  getpixel(xm, ym))
+                {
+                    COLOR(236, 240+i, 241);
+                    if(current_rgb_colour ==  getpixel(xm, ym))
                        opcion = i;
+                }
 
                 switch(opcion)
                 {
@@ -226,7 +240,7 @@ void ColoresDinamicos(int xInicial, int yInicial, int color)
     setcolor(COLOR(44, 62, 80));
     for(i=0; i<numeroCirculos;i++)
     {
-        setfillstyle(1, COLOR(color, color, color));
+        setfillstyle(SOLID_FILL, i>16?4:i+MAXRGBCOLORS+1);
         for(j=0;j<CIRCULO_TAM;j++)
         {
             fillellipse(xInicial, yInicial, j, j);
