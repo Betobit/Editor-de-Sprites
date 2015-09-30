@@ -66,17 +66,9 @@ int main()
     if(AsignaMemoria(&matriz, n, m))
     {
         CreaUI();
-        struct palettetype pal;
         int colorSel = COLOR(254, 254, 254);
         tam = CreaMatriz(matriz, n, m, 40, HEIGHT/10-CIRCULO_TAM);
         setfillstyle(1, WHITE);
-        
-        
-        /* grab a copy of the palette */
-        
-        getpalette(&pal);
-        
-        /* create gray scale */
         
         do
         {
@@ -89,11 +81,9 @@ int main()
             if( xm>WIDTH-150-CIRCULO_TAM && xm<WIDTH-40 && ym>HEIGHT/10-CIRCULO_TAM && ym<HEIGHT- 250 )
             {
                 
-                for (i=0; i<pal.size; i++)
-                    setrgbpalette(pal.colors[i], i*4, i*4, 0);
-                
-                if(colorSel != 55590444)
+                if(colorSel != 2899536)
                 {
+                    printf("\n%d", colorSel);
                     setcolor(-1);
                     setlinestyle(0, 0, 3);
                     rectangle(39, HEIGHT/10-CIRCULO_TAM-1, tam*n+41, HEIGHT/10-CIRCULO_TAM+tam*m+1);
@@ -233,14 +223,25 @@ void ColoresPrincipales(int xInicial, int yInicial)
 void ColoresDinamicos(int xInicial, int yInicial, int color)
 {
     setlinestyle(1, 0, 3);
-    char j,
-         i,
-         numeroCirculos = 9;
-
     setcolor(COLOR(44, 62, 80));
+    
+    char i, j, k,
+         numeroCirculos = 9;
+    int colorRGB[3],
+        tinte[3];
+    colorRGB[0] = RED_VALUE(color);
+    colorRGB[1] = GREEN_VALUE(color);
+    colorRGB[2] = BLUE_VALUE(color);
+    
+    for(k=0; k<3;k++)
+        tinte[k] = colorRGB[k]/9;
+    
     for(i=0; i<numeroCirculos;i++)
     {
-        setfillstyle(SOLID_FILL, i>16?4:i+MAXRGBCOLORS+1);
+        setfillstyle(SOLID_FILL, COLOR(colorRGB[0], colorRGB[1], colorRGB[2]));
+        for(k=0; k<3;k++)
+            colorRGB[k] -= tinte[k];
+        
         for(j=0;j<CIRCULO_TAM;j++)
         {
             fillellipse(xInicial, yInicial, j, j);
