@@ -9,9 +9,11 @@
 
 #define CIRCULO_TAM 14
 #define HEIGHT 600
+#define NCIRCULOS 9
 #define WIDTH 700
 
 typedef char String[50];
+
 typedef struct {
     int color;
     int x;
@@ -36,9 +38,9 @@ void ColoresDinamicos(int xInicial, int yInicial, int color);
 void CreaUI();
 
 // UI
-int AsignaMemoria(TCuadro ***mat, int n, int m);
+int  AsignaMemoria(TCuadro ***mat, int n, int m);
 void CreaMenu(TBoton *b);
-int CreaMatriz(TCuadro **mat, int n, int m, int x, int y); // Devuelve el tam del cuadrito
+int  CreaMatriz(TCuadro **mat, int n, int m, int x, int y); // Devuelve el tam del cuadrito
 void Guarda(TCuadro **mat, int n, int m, String nombre);
 void LiberaMemoria(TCuadro **mat, int n);
 void MuestraInput(String placeholder, String texto);
@@ -66,34 +68,35 @@ int main()
     if(AsignaMemoria(&matriz, n, m))
     {
         CreaUI();
-        int colorSel = COLOR(254, 254, 254);
+        int xm, ym, colorSel = 0;
         tam = CreaMatriz(matriz, n, m, 40, HEIGHT/10-CIRCULO_TAM);
         setfillstyle(1, WHITE);
+        setlinestyle(0, 0, 3);
+        rectangle(39, HEIGHT/10-CIRCULO_TAM-1, tam*n+41, HEIGHT/10-CIRCULO_TAM+tam*m+1);
         
         do
         {
             while(!ismouseclick(WM_LBUTTONDOWN));
-            int xm, ym;
             getmouseclick(WM_LBUTTONDOWN, &xm, &ym);
-            colorSel = getpixel(xm, ym);
             
             // Zona de colores
             if( xm>WIDTH-150-CIRCULO_TAM && xm<WIDTH-40 && ym>HEIGHT/10-CIRCULO_TAM && ym<HEIGHT- 250 )
             {
-                
+                colorSel = getpixel(xm, ym);
                 if(colorSel != 2899536)
                 {
-                    printf("\n%d", colorSel);
-                    setcolor(-1);
+                    setcolor(COLOR(RED_VALUE(colorSel), GREEN_VALUE(colorSel), BLUE_VALUE(colorSel)));
                     setlinestyle(0, 0, 3);
                     rectangle(39, HEIGHT/10-CIRCULO_TAM-1, tam*n+41, HEIGHT/10-CIRCULO_TAM+tam*m+1);
                     if(xm < WIDTH - 80)
                         ColoresDinamicos(WIDTH-50, HEIGHT/10, colorSel);
-                    setfillstyle(1, 5);
+                    setfillstyle(1, COLOR(RED_VALUE(colorSel), GREEN_VALUE(colorSel), BLUE_VALUE(colorSel)));
                 }
+                
             // Area de dibujo
             } else if (xm > 40 && xm <tam*n+40 && ym > HEIGHT/10-CIRCULO_TAM && ym < HEIGHT/10-CIRCULO_TAM+tam*m ) {
-                setcolor(4);
+                setcolor(COLOR(44, 62, 80));
+                setfillstyle(1, COLOR(RED_VALUE(colorSel), GREEN_VALUE(colorSel), BLUE_VALUE(colorSel)));
                 // Falta optimizar un monton, pero deadline is coming.... :I
                 setlinestyle(0, 1, 1);
                 int x, y, puntos[8];
@@ -120,7 +123,7 @@ int main()
 
                 fillpoly(4, puntos);
                 VistaPrevia(matriz, n, m);
-                setfillstyle(1, colorSel);
+                
             // Botones
             } else if (xm>0 && xm<WIDTH && ym>HEIGHT-textheight("A")*2-10) {
     
@@ -133,9 +136,9 @@ int main()
 
                 switch(opcion)
                 {
-                    case 0: MuestraInput(" N, M", archivo); break;
-                    case 1: printf("ABRIR"); break;
-                    case 2: Guarda(matriz, n, m, "holi");break;
+                    case 0: MuestraInput(" N, M", archivo);    break;
+                    case 1: printf("ABRIR");                   break;
+                    case 2: Guarda(matriz, n, m, "holi");      break;
                     case 3: MuestraInput(" Nombre del archivo", archivo);
                             if(archivo[0]!='\0')
                                 Guarda(matriz, n, m, archivo);
@@ -145,18 +148,17 @@ int main()
     } else
         printf("\nSin memoria");
 
-    closegraph();//LiberaMemoria(matriz, n);
+    closegraph();
     return (0);
 }
 
 int AsignaMemoria(TCuadro ***mat, int n, int m)
 {
-    int res = 1,i;
+    int i, res = 1;
 
     *mat = (TCuadro**)malloc(sizeof(TCuadro*)*n);
 
     if(*mat)
-    {
         for(i=0; i<n && res==1; i++)
         {
             *(*mat + i) = (TCuadro*) malloc(sizeof(TCuadro)*m);
@@ -168,7 +170,6 @@ int AsignaMemoria(TCuadro ***mat, int n, int m)
                 free(*mat);
             }
         }
-    }
 
     return res;
 }
@@ -178,32 +179,30 @@ int AsignaMemoria(TCuadro ***mat, int n, int m)
 void ColoresPrincipales(int xInicial, int yInicial)
 {
     setlinestyle(1, 0, 3);
-    setcolor(COLOR(44, 62, 80));
-    char j,
-         i,
-         numeroCirculos = 18;
+    char i, j;
     int colores[][3] = {
-        {255, 214, 46}, // Amarillo
-        {67, 30, 108},  // Morado
-        {94, 52, 28},   // Café
-        {254, 51, 28},  // Naranja
+        {255, 214, 0}, // Amarillo
+        {0, 248, 248},  // Azul
+        {183, 103, 0},  // CafŽ
+        {255, 160, 60},  // Naranja
         {234, 20, 96},  // Rosa
         {15, 146, 245}, // Azul 1
-        {11, 73, 112},  // Azul rey
-        {0, 191, 0},    // Verde fuerte
-        {0, 128, 0},    // Verde claro
+        {0, 249, 148},  // Turquesa
+        {0, 191, 0},    // Verde
+        {168, 255, 76}, // Verde toxico
         
         {79, 186, 138},
-        {255, 206, 109},
-        {255, 90, 60},
-        {248,64, 69},
+        {0, 0, 255},
+        {255, 127, 172},
+        {248, 64, 69},
         {255, 17, 21},  // Rojo
         {155, 89, 182},
-        {236, 240, 241},
-        {127, 140, 141}
+        {100, 70, 255},
+        {255, 166, 243},
+        {255, 255, 255}
     };
 
-    for(i=0; i<numeroCirculos;i++)
+    for(i=0; i<NCIRCULOS*2; i++)
     {
         setfillstyle(1, COLOR (colores[i][0], colores[i][1], colores[i][2]));
         if(i==9)
@@ -225,8 +224,7 @@ void ColoresDinamicos(int xInicial, int yInicial, int color)
     setlinestyle(1, 0, 3);
     setcolor(COLOR(44, 62, 80));
     
-    char i, j, k,
-         numeroCirculos = 9;
+    char i, j, k;
     int colorRGB[3],
         tinte[3];
     colorRGB[0] = RED_VALUE(color);
@@ -234,9 +232,9 @@ void ColoresDinamicos(int xInicial, int yInicial, int color)
     colorRGB[2] = BLUE_VALUE(color);
     
     for(k=0; k<3;k++)
-        tinte[k] = colorRGB[k]/9;
+        tinte[k] = colorRGB[k]/10;
     
-    for(i=0; i<numeroCirculos;i++)
+    for(i=0; i<NCIRCULOS;i++)
     {
         setfillstyle(SOLID_FILL, COLOR(colorRGB[0], colorRGB[1], colorRGB[2]));
         for(k=0; k<3;k++)
@@ -277,6 +275,7 @@ int CreaMatriz(TCuadro **mat, int n, int m, int x, int y)
         {
             (*(mat+i)+j)->x = x+tam*j;
             (*(mat+i)+j)->y = y;
+            (*(mat+i)+j)->color[0] = '\0';
             rectangle(x, y, x+tam*j, y+tam);
         }
         x=40;
@@ -319,7 +318,7 @@ void Guarda(TCuadro **mat, int n, int m, String nombre)
              for(j=0; j<m; j++)
              {
                  TCuadro cuadro = *(*(mat+i)+j);
-                 fprintf(f,"%d %d %s\n",cuadro.x, cuadro.y, cuadro.color);
+                 fprintf(f,"%d %d %lu\n",cuadro.x, cuadro.y, cuadro.color);
              }
 
         sprintf(aux, "\"%s\" guardado con exito", nombre);
@@ -421,6 +420,8 @@ void VistaPrevia(TCuadro **mat, int n, int m)
         xi = WIDTH - 175,
         yi = HEIGHT- 235,
         tam = 140/n;
+    long unsigned color = 2552555;
+    setfillstyle(1, 0);
     setcolor(BLACK);
     setlinestyle(0, 1, 1);
     bar(xi, yi, xi+tam*n, yi+tam*m);
@@ -429,9 +430,10 @@ void VistaPrevia(TCuadro **mat, int n, int m)
     {
         for(j=0; j<n; j++)
         {
-            if((*(mat+i)+j)->color)
+            if((*(mat+i)+j)->color[0] != '\0')
             {
-                setfillstyle(1, atoll((*(mat+i)+j)->color));
+                color = atoi((*(mat+i)+j)->color);
+                setfillstyle(1, COLOR(RED_VALUE(color), GREEN_VALUE(color), BLUE_VALUE(color)));
                 bar(xi, yi, xi+tam, yi+tam);
             }
             xi+=tam;
