@@ -39,6 +39,7 @@ void CreaUI();
 
 // UI
 int  AsignaMemoria(TCuadro ***mat, int n, int m);
+void CreaHerramientas();
 void CreaMenu(TBoton *b);
 int  CreaMatriz(TCuadro **mat, int n, int m, int x, int y); // Devuelve el tam del cuadrito
 void Guarda(TCuadro **mat, int n, int m, String nombre);
@@ -97,7 +98,6 @@ int main()
             } else if (xm > 40 && xm <tam*n+40 && ym > HEIGHT/10-CIRCULO_TAM && ym < HEIGHT/10-CIRCULO_TAM+tam*m ) {
                 setcolor(COLOR(44, 62, 80));
                 setfillstyle(1, COLOR(RED_VALUE(colorSel), GREEN_VALUE(colorSel), BLUE_VALUE(colorSel)));
-                // Falta optimizar un monton, pero deadline is coming.... :I
                 setlinestyle(0, 1, 1);
                 int x, y, puntos[8];
                 for(i=0; i<m; i++)
@@ -124,24 +124,48 @@ int main()
                 fillpoly(4, puntos);
                 VistaPrevia(matriz, n, m);
                 
-            // Botones
+            // Botones de menu
             } else if (xm>0 && xm<WIDTH && ym>HEIGHT-textheight("A")*2-10) {
     
                 for(i=0; i<5; i++)
                 {
                     COLOR(236, 240+i, 241);
-                    if(current_rgb_colour ==  getpixel(xm, ym))
+                    if(current_rgb_colour == getpixel(xm, ym) || getpixel(xm, ym) == 15158332)
+                    {
                        opcion = i;
+                        i = 5;
+                    }
                 }
 
                 switch(opcion)
                 {
-                    case 0: MuestraInput(" N, M", archivo);    break;
+                    case 0: MuestraInput("  N,  M", archivo);
+                            break;
                     case 1: printf("ABRIR");                   break;
                     case 2: Guarda(matriz, n, m, "holi");      break;
                     case 3: MuestraInput(" Nombre del archivo", archivo);
                             if(archivo[0]!='\0')
                                 Guarda(matriz, n, m, archivo);
+                }
+            // Herramientas
+            } else if(xm>10 && xm<30) {
+                for(i=0; i<2; i++)
+                {
+                    COLOR(75, 100, 130+i);
+                    if(current_rgb_colour == getpixel(xm, ym))
+                    {
+                        opcion = i;
+                        i = 2;
+                    }
+                }
+                switch (opcion) {
+                    case 0:
+                        setcolor(COLOR(44, 62, 80));
+                        colorSel = current_rgb_colour;
+                        printf("\n%d", colorSel);
+                        break;
+                    case 1:
+                        printf("\nCuadro"); break;
                 }
             }
         } while (opcion !=4);
@@ -260,6 +284,7 @@ void CreaUI()
     ColoresPrincipales(WIDTH-150, HEIGHT/10);
     TBoton botones[4];
     CreaMenu(botones);
+    CreaHerramientas();
 }
 
 int CreaMatriz(TCuadro **mat, int n, int m, int x, int y)
@@ -283,6 +308,23 @@ int CreaMatriz(TCuadro **mat, int n, int m, int x, int y)
     }
 
     return tam;
+}
+void CreaHerramientas() {
+    int i;
+    String herr[] = {
+        "Borrar",
+        "Cuadrado"
+    };
+    
+    settextstyle(0, VERT_DIR, 1);
+    setcolor(WHITE);
+    for(i=0; i<sizeof(herr)/sizeof(String); i++)
+    {
+        setfillstyle(1, COLOR(75, 100, 130+i));
+        bar(10, 45+70*i, 30, 55+70*i+textwidth(herr[i]));
+        outtextxy(15, 50+i*70, herr[i]);
+    }
+    settextstyle(0, HORIZ_DIR, 1);
 }
 
 void CreaMenu(TBoton *b)
@@ -362,7 +404,7 @@ void MuestraInput(String placeholder, String texto)
         tecla;
     char letra[2];
     setcolor(WHITE);
-    for(i=0; i<textheight("A")*1.3; i++)
+    for(i=0; i<textheight("A")*2.5; i++)
     {
         line(WIDTH/2 - textwidth(placeholder)/2-2, i, WIDTH/2 + textwidth(placeholder)/2+2, i);
         delay(4);
@@ -411,7 +453,7 @@ void MuestraInput(String placeholder, String texto)
     texto[i] = '\0';
 
     setcolor(COLOR(44, 62, 80));
-    for(i=textheight("A")*1.8; i>=0; i--)
+    for(i=textheight("A")*2.6; i>=0; i--)
         line(0, i, WIDTH, i);
 }
 void VistaPrevia(TCuadro **mat, int n, int m)
@@ -433,8 +475,11 @@ void VistaPrevia(TCuadro **mat, int n, int m)
             if((*(mat+i)+j)->color[0] != '\0')
             {
                 color = atoi((*(mat+i)+j)->color);
-                setfillstyle(1, COLOR(RED_VALUE(color), GREEN_VALUE(color), BLUE_VALUE(color)));
-                bar(xi, yi, xi+tam, yi+tam);
+                if(color != 2899536)
+                {
+                    setfillstyle(1, COLOR(RED_VALUE(color), GREEN_VALUE(color), BLUE_VALUE(color)));
+                    bar(xi, yi, xi+tam, yi+tam);
+                }
             }
             xi+=tam;
         }
