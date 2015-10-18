@@ -7,6 +7,24 @@
 #include <graphics.h>
 #include <stdlib.h>
 
+/******* Parche para Windows ********/
+// Sobreescribe la funcion COLOR por la de libgXbgi 
+extern unsigned long bg_rgb_colour, fg_rgb_colour, current_rgb_colour;
+int COLOR (int r, int g, int b)
+{
+    XColor color;
+    
+    color.pixel = 0;
+    color.red = r << 8;
+    color.green = g << 8;
+    color.blue = b << 8;
+    XAllocColor (dpy, cmap, &color);
+    current_rgb_colour = color.pixel;
+    rgb_mode = 1;
+    return -1; // for setcolor() and setbkcolor()
+}
+
+/***** Editor *****/
 #define CIRCULO_TAM 14
 #define HEIGHT 600
 #define NCIRCULOS 9
@@ -467,7 +485,6 @@ void VistaPrevia(TCuadro **mat, int n, int m)
     setcolor(BLACK);
     setlinestyle(0, 1, 1);
     bar(xi, yi, xi+tam*n, yi+tam*m);
-
     for(i=0; i<m;i++)
     {
         for(j=0; j<n; j++)
