@@ -7,24 +7,6 @@
 #include <graphics.h>
 #include <stdlib.h>
 
-/******* Parche para Windows ********/
-// Sobreescribe la funcion COLOR por la de libgXbgi 
-extern unsigned long bg_rgb_colour, fg_rgb_colour, current_rgb_colour;
-int COLOR (int r, int g, int b)
-{
-    XColor color;
-    
-    color.pixel = 0;
-    color.red = r << 8;
-    color.green = g << 8;
-    color.blue = b << 8;
-    XAllocColor (dpy, cmap, &color);
-    current_rgb_colour = color.pixel;
-    rgb_mode = 1;
-    return -1; // for setcolor() and setbkcolor()
-}
-
-/***** Editor *****/
 #define CIRCULO_TAM 14
 #define HEIGHT 600
 #define NCIRCULOS 9
@@ -147,8 +129,8 @@ int main()
     
                 for(i=0; i<5; i++)
                 {
-                    COLOR(236, 240+i, 241);
-                    if(current_rgb_colour == getpixel(xm, ym) || getpixel(xm, ym) == 15158332)
+                    setcolor(COLOR(236, 240+i, 241));
+                    if(getcolor() == getpixel(xm, ym))
                     {
                        opcion = i;
                         i = 5;
@@ -169,8 +151,8 @@ int main()
             } else if(xm>10 && xm<30) {
                 for(i=0; i<2; i++)
                 {
-                    COLOR(75, 100, 130+i);
-                    if(current_rgb_colour == getpixel(xm, ym))
+                    setcolor(COLOR(75, 100, 130+i));
+                    if(getcolor() == getpixel(xm, ym))
                     {
                         opcion = i;
                         i = 2;
@@ -179,8 +161,7 @@ int main()
                 switch (opcion) {
                     case 0:
                         setcolor(COLOR(44, 62, 80));
-                        colorSel = current_rgb_colour;
-                        printf("\n%d", colorSel);
+                        colorSel = getcolor();
                         break;
                     case 1:
                         printf("\nCuadro"); break;
