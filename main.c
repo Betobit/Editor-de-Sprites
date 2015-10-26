@@ -32,20 +32,24 @@ typedef struct
     String color;
 }TCuadro;
 
-// AREA DE COLORES
-void ColoresPrincipales(int xInicial, int yInicial);
-void ColoresDinamicos(int xInicial, int yInicial, int color);
 void CreaUI();
 
-// UI
-int  AsignaMemoria(TCuadro ***mat, int n, int m);
+/*** AREA DE COLORES ***/
+void ColoresPrincipales(int xInicial, int yInicial);
+void ColoresDinamicos(int xInicial, int yInicial, int color);
+
+/*** AREA DIBUJO ***/
+int  AsignaMemoria(TCuadro ***mat, int n, int m);void CreaMenu(TBoton *b);
+int  CreaMatriz(TCuadro **mat, int n, int m, int x, int y); // Devuelve el tam del cuadrito
+void PintaMatriz(TCuadro ***mat, int *n, int *m, int *tam); // Todo pasa por referencia para evitar un duplicado
+
+/*** OTROS ELEMTNOS DE UI ***/
+TCuadro** AbrirArchivo(String arc);
 void CreaHerramientas();
 void CreaMenu(TBoton *b);
-int  CreaMatriz(TCuadro **mat, int n, int m, int x, int y); // Devuelve el tam del cuadrito
-void Guarda(TCuadro **mat, int n, int m, String nombre);
-void LiberaMemoria(TCuadro **mat, int n);
+void Guarda(TCuadro ***mat, int n, int m, String nombre);
 void MuestraInput(String placeholder, String texto);
-void VistaPrevia(TCuadro **mat, int n, int m);
+void VistaPrevia(TCuadro ***mat, int n, int m);
 
 
 int main()
@@ -122,7 +126,7 @@ int main()
                     }
 
                 fillpoly(4, puntos);
-                VistaPrevia(matriz, n, m);
+                VistaPrevia(&matriz, n, m);
                 
             // Botones de menu
             } else if (xm>0 && xm<WIDTH && ym>HEIGHT-textheight("A")*2-10) {
@@ -140,12 +144,15 @@ int main()
                 switch(opcion)
                 {
                     case 0: MuestraInput("  N,  M", archivo);
-                            break;
-                    case 1: printf("ABRIR");                   break;
-                    case 2: Guarda(matriz, n, m, "holi");      break;
+                        break;
+                    case 1: MuestraInput("Nombre del archivo", archivo);
+                            matriz = AbrirArchivo(archivo);
+                        break;
+                    case 2: Guarda(&matriz, n, m, "holi");
+                        break;
                     case 3: MuestraInput(" Nombre del archivo", archivo);
                             if(archivo[0]!='\0')
-                                Guarda(matriz, n, m, archivo);
+                                Guarda(&matriz, n, m, archivo);
                 }
             // Herramientas
             } else if(xm>10 && xm<30) {
@@ -175,30 +182,20 @@ int main()
     return (0);
 }
 
-int AsignaMemoria(TCuadro ***mat, int n, int m)
+void CreaUI()
 {
-    int i, res = 1;
-
-    *mat = (TCuadro**)malloc(sizeof(TCuadro*)*n);
-
-    if(*mat)
-        for(i=0; i<n && res==1; i++)
-        {
-            *(*mat + i) = (TCuadro*) malloc(sizeof(TCuadro)*m);
-            if(*(*mat+i) == NULL)
-            {
-                res = 0;
-                while(--i>0)
-                    free(*(*mat+i));
-                free(*mat);
-            }
-        }
-
-    return res;
+    initwindow(WIDTH,HEIGHT);
+    setfillstyle(1,COLOR(44, 62, 80));
+    setcolor(COLOR(44, 62, 80));
+    bar(0, 0, WIDTH, HEIGHT);
+    setlinestyle(0, 0, 6); // Crea efecto de mancha en los colores.
+    ColoresPrincipales(WIDTH-150, HEIGHT/10);
+    TBoton botones[4];
+    CreaMenu(botones);
+    CreaHerramientas();
 }
-/******************************************
-                COLORES
-******************************************/
+
+/*** AREA DE COLORES ***/
 void ColoresPrincipales(int xInicial, int yInicial)
 {
     setlinestyle(1, 0, 3);
@@ -224,7 +221,7 @@ void ColoresPrincipales(int xInicial, int yInicial)
         {255, 166, 243},
         {255, 255, 255}
     };
-
+    
     for(i=0; i<NCIRCULOS*2; i++)
     {
         setfillstyle(1, COLOR (colores[i][0], colores[i][1], colores[i][2]));
@@ -249,7 +246,7 @@ void ColoresDinamicos(int xInicial, int yInicial, int color)
     
     char i, j, k;
     int colorRGB[3],
-        tinte[3];
+    tinte[3];
     colorRGB[0] = RED_VALUE(color);
     colorRGB[1] = GREEN_VALUE(color);
     colorRGB[2] = BLUE_VALUE(color);
@@ -273,17 +270,27 @@ void ColoresDinamicos(int xInicial, int yInicial, int color)
     }
 }
 
-void CreaUI()
+/*** AREA DE DIBUJO ***/
+int AsignaMemoria(TCuadro ***mat, int n, int m)
 {
-    initwindow(WIDTH,HEIGHT);
-    setfillstyle(1,COLOR(44, 62, 80));
-    setcolor(COLOR(44, 62, 80));
-    bar(0, 0, WIDTH, HEIGHT);
-    setlinestyle(0, 0, 6); // Crea efecto de mancha en los colores.
-    ColoresPrincipales(WIDTH-150, HEIGHT/10);
-    TBoton botones[4];
-    CreaMenu(botones);
-    CreaHerramientas();
+    int i, res = 1;
+
+    *mat = (TCuadro**)malloc(sizeof(TCuadro*)*n);
+
+    if(*mat)
+        for(i=0; i<n && res==1; i++)
+        {
+            *(*mat + i) = (TCuadro*) malloc(sizeof(TCuadro)*m);
+            if(*(*mat+i) == NULL)
+            {
+                res = 0;
+                while(--i>0)
+                    free(*(*mat+i));
+                free(*mat);
+            }
+        }
+
+    return res;
 }
 
 int CreaMatriz(TCuadro **mat, int n, int m, int x, int y)
@@ -308,6 +315,55 @@ int CreaMatriz(TCuadro **mat, int n, int m, int x, int y)
 
     return tam;
 }
+void PintaMatriz(TCuadro ***mat, int *n, int *m, int *tam)
+{
+    int i, j, x, y, puntos[8];
+    long unsigned color;
+    setlinestyle(0, 1, 1);
+    for(i=0; i<*m; i++)
+        for(j=0; j<*n; j++)
+        {
+            x = (*(*mat+i)+j)->x;
+            y = (*(*mat+i)+j)->y;
+            puntos[0] = (*(*mat+i)+j)->x;
+            puntos[1] = (*(*mat+i)+j)->y;
+            puntos[2] = (*(*mat+i)+j)->x+(*tam);
+            puntos[3] = (*(*mat+i)+j)->y;
+            puntos[4] = (*(*mat+i)+j)->x+(*tam);
+            puntos[5] = (*(*mat+i)+j)->y+(*tam);
+            puntos[6] = (*(*mat+i)+j)->x;
+            puntos[7] = (*(*mat+i)+j)->y+(*tam);
+            color = atoi((*(*mat+i)+j)->color);
+            printf("\n%s", (*(*mat+i)+j)->color);
+            if(color)
+            {
+                setfillstyle(1, COLOR(RED_VALUE(color), GREEN_VALUE(color), BLUE_VALUE(color)));
+                fillpoly(4, puntos);
+            }
+        }
+
+}
+
+/*** OTROS ELEMNTOS DE UI ***/
+TCuadro** AbrirArchivo(String arc)
+{
+    int n, m, i, j, tam;
+    FILE *f;
+    TCuadro **matriz;
+    sprintf(arc, "%s.dat", arc);
+    f = fopen(arc, "rb");
+    
+    if(f)
+    {
+        /*read(&n, sizeof(int), 1, f);
+        fread(&m, sizeof(int), 1, f);
+        n*=m;*/
+        fread(&**matriz, sizeof(TCuadro)*400, 1, f);
+        PintaMatriz(&matriz, &n, &m, &tam);
+        VistaPrevia(&matriz, n, m);
+    }
+    return matriz;
+}
 void CreaHerramientas() {
     int i;
     String herr[] = {
@@ -325,7 +381,6 @@ void CreaHerramientas() {
     }
     settextstyle(0, HORIZ_DIR, 1);
 }
-
 void CreaMenu(TBoton *b)
 {
     char i;
@@ -342,59 +397,41 @@ void CreaMenu(TBoton *b)
         xi += textwidth(opciones[i])+40;
     }
 }
-
-void Guarda(TCuadro **mat, int n, int m, String nombre)
+void Guarda(TCuadro ***mat, int n, int m, String nombre)
 {
     FILE *f;
-    int i, j;
+    int i;
     String aux;
     sprintf(aux, "%s.dat", nombre);
-    f = fopen(aux, "wt");
+    f = fopen(aux, "wb");
     if(f)
     {
-         fprintf(f,"%s\n",nombre);
-         fprintf(f,"%d\n",n);
-         fprintf(f,"%d\n",m);
-         for(i=0; i<n; i++)
-             for(j=0; j<m; j++)
-             {
-                 TCuadro cuadro = *(*(mat+i)+j);
-                 fprintf(f,"%d %d %lu\n",cuadro.x, cuadro.y, cuadro.color);
-             }
-
+        /*fwrite(&n, sizeof(int), 1, f);
+        fwrite(&m, sizeof(int), 1, f);
+        n*=m;*/
+        fwrite(&***mat, sizeof(TCuadro), 400, f);
         sprintf(aux, "\"%s\" guardado con exito", nombre);
-    } else
-        sprintf(aux, "No existe el  archivo\" %s\" ", nombre);
-
-        // Avisa que el archivo ha sido guardado.
-        setcolor(COLOR(3, 166, 120));
-        setbkcolor(COLOR(3, 166, 120));
-        for(i=0; i<textheight("A")*1.8; i++)
-        {
-            line(WIDTH/2 - textwidth(aux)/2-2, i, WIDTH/2 + textwidth(aux)/2, i);
-            delay(4);
-        }
-        setcolor(WHITE);
-        outtextxy(WIDTH/2 - textwidth(aux)/2, 8, aux);
-        delay(2000);
-        setcolor(COLOR(44, 62, 80));
-        for(i=textheight("A")*1.8; i>=0; i--)
-        {
-            line(0, i, WIDTH, i);
-            delay(4);
-        }
+    }
+    
+    // Avisa que el archivo ha sido guardado.
+    setcolor(COLOR(3, 166, 120));
+    setbkcolor(COLOR(3, 166, 120));
+    for(i=0; i<textheight("A")*1.8; i++)
+    {
+        line(WIDTH/2 - textwidth(aux)/2-2, i, WIDTH/2 + textwidth(aux)/2, i);
+        delay(4);
+    }
+    setcolor(WHITE);
+    outtextxy(WIDTH/2 - textwidth(aux)/2, 8, aux);
+    delay(2000);
+    setcolor(COLOR(44, 62, 80));
+    for(i=textheight("A")*1.8; i>=0; i--)
+    {
+        line(0, i, WIDTH, i);
+        delay(4);
+    }
     fclose(f);
 }
-
-void LiberaMemoria(TCuadro **mat, int n)
-{
-    int i;
-
-    for(i=0; i<n; i++)
-        free(*(mat+i));
-    free(mat);
-}
-
 void MuestraInput(String placeholder, String texto)
 {
     int i,
@@ -455,7 +492,7 @@ void MuestraInput(String placeholder, String texto)
     for(i=textheight("A")*2.6; i>=0; i--)
         line(0, i, WIDTH, i);
 }
-void VistaPrevia(TCuadro **mat, int n, int m)
+void VistaPrevia(TCuadro ***mat, int n, int m)
 {
     int i, j,
         xi = WIDTH - 175,
@@ -470,9 +507,9 @@ void VistaPrevia(TCuadro **mat, int n, int m)
     {
         for(j=0; j<n; j++)
         {
-            if((*(mat+i)+j)->color[0] != '\0')
+            if((*(*mat+i)+j)->color[0] != '\0')
             {
-                color = atoi((*(mat+i)+j)->color);
+                color = atoi((*(*mat+i)+j)->color);
                 if(color != 2899536)
                 {
                     setfillstyle(1, COLOR(RED_VALUE(color), GREEN_VALUE(color), BLUE_VALUE(color)));
