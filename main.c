@@ -351,14 +351,20 @@ TCuadro** AbrirArchivo(String arc)
     FILE *f;
     TCuadro **matriz;
     sprintf(arc, "%s.dat", arc);
-    f = fopen(arc, "rb");
+    f = fopen(arc, "r");
     
     if(f)
     {
-        /*read(&n, sizeof(int), 1, f);
-        fread(&m, sizeof(int), 1, f);
-        n*=m;*/
-        fread(&**matriz, sizeof(TCuadro)*400, 1, f);
+        fscanf(f, "%d", &n);
+        fscanf(f, "%d", &m);
+        AsignaMemoria(&matriz, n, m);
+        tam = CreaMatriz(matriz, n, m, 40, HEIGHT/10-CIRCULO_TAM);
+        for(i=0; i<n; i++)
+            for(j=0; j<m; j++)
+            {
+                fscanf(f, "%d %d %s", &(*(matriz+i)+j)->x, &(*(matriz+i)+j)->y, (*(matriz+i)+j)->color);
+                printf("\n%d %d %s", (*(matriz+i)+j)->x, (*(matriz+i)+j)->y, (*(matriz+i)+j)->color );
+            }
         PintaMatriz(&matriz, &n, &m, &tam);
         VistaPrevia(&matriz, n, m);
     }
@@ -400,16 +406,20 @@ void CreaMenu(TBoton *b)
 void Guarda(TCuadro ***mat, int n, int m, String nombre)
 {
     FILE *f;
-    int i;
+    int i, j;
     String aux;
     sprintf(aux, "%s.dat", nombre);
-    f = fopen(aux, "wb");
+    f = fopen(aux, "wt");
     if(f)
     {
-        /*fwrite(&n, sizeof(int), 1, f);
-        fwrite(&m, sizeof(int), 1, f);
-        n*=m;*/
-        fwrite(&***mat, sizeof(TCuadro), 400, f);
+        fprintf(f,"%d\n",n);
+        fprintf(f,"%d\n",m);
+        for(i=0; i<n; i++)
+            for(j=0; j<m; j++)
+            {
+                TCuadro cuadro = *(*(*mat+i)+j);
+                fprintf(f,"%d %d %s\n",cuadro.x, cuadro.y, cuadro.color[0] != '\0' ? cuadro.color : "0");
+            }
         sprintf(aux, "\"%s\" guardado con exito", nombre);
     }
     
