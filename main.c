@@ -41,6 +41,7 @@ void ColoresDinamicos(int xInicial, int yInicial, int color);
 /*** AREA DIBUJO ***/
 int  AsignaMemoria(TCuadro ***mat, int n, int m);void CreaMenu(TBoton *b);
 int  CreaMatriz(TCuadro **mat, int n, int m, int x, int y); // Devuelve el tam del cuadrito
+void LimpiaArea();
 void PintaMatriz(TCuadro ***mat, int *n, int *m, int *tam); // Todo pasa por referencia para evitar un duplicado
 
 /*** OTROS ELEMTNOS DE UI ***/
@@ -144,6 +145,7 @@ int main()
                 switch(opcion)
                 {
                     case 0: MuestraInput("  N,  M", archivo);
+                            LimpiaArea();
                         break;
                     case 1: MuestraInput("Nombre del archivo", archivo);
                             matriz = AbrirArchivo(archivo);
@@ -300,13 +302,14 @@ int CreaMatriz(TCuadro **mat, int n, int m, int x, int y)
 
     setcolor(BLACK);
     setlinestyle(0, 1, 1);
+    LimpiaArea();
     for(i=0; i<m; i++)
     {
         for(j=0; j<=n; j++)
         {
             (*(mat+i)+j)->x = x+tam*j;
             (*(mat+i)+j)->y = y;
-            (*(mat+i)+j)->color[0] = '\0';
+            strcpy((*(mat+i)+j)->color, "0");
             rectangle(x, y, x+tam*j, y+tam);
         }
         x=40;
@@ -315,6 +318,13 @@ int CreaMatriz(TCuadro **mat, int n, int m, int x, int y)
 
     return tam;
 }
+
+void LimpiaArea()
+{
+    setfillstyle(1,COLOR(44, 62, 80));
+    bar(40, HEIGHT/10-CIRCULO_TAM, 460+40, 460+HEIGHT/10-CIRCULO_TAM);
+}
+
 void PintaMatriz(TCuadro ***mat, int *n, int *m, int *tam)
 {
     int i, j, x, y, puntos[8];
@@ -334,7 +344,6 @@ void PintaMatriz(TCuadro ***mat, int *n, int *m, int *tam)
             puntos[6] = (*(*mat+i)+j)->x;
             puntos[7] = (*(*mat+i)+j)->y+(*tam);
             color = atoi((*(*mat+i)+j)->color);
-            printf("\n%s", (*(*mat+i)+j)->color);
             if(color)
             {
                 setfillstyle(1, COLOR(RED_VALUE(color), GREEN_VALUE(color), BLUE_VALUE(color)));
@@ -359,12 +368,11 @@ TCuadro** AbrirArchivo(String arc)
         fscanf(f, "%d", &m);
         AsignaMemoria(&matriz, n, m);
         tam = CreaMatriz(matriz, n, m, 40, HEIGHT/10-CIRCULO_TAM);
+        
         for(i=0; i<n; i++)
             for(j=0; j<m; j++)
-            {
                 fscanf(f, "%d %d %s", &(*(matriz+i)+j)->x, &(*(matriz+i)+j)->y, (*(matriz+i)+j)->color);
-                printf("\n%d %d %s", (*(matriz+i)+j)->x, (*(matriz+i)+j)->y, (*(matriz+i)+j)->color );
-            }
+
         PintaMatriz(&matriz, &n, &m, &tam);
         VistaPrevia(&matriz, n, m);
     }
@@ -517,7 +525,7 @@ void VistaPrevia(TCuadro ***mat, int n, int m)
     {
         for(j=0; j<n; j++)
         {
-            if((*(*mat+i)+j)->color[0] != '\0')
+            if(strcmp((*(*mat+i)+j)->color, "0"))
             {
                 color = atoi((*(*mat+i)+j)->color);
                 if(color != 2899536)
